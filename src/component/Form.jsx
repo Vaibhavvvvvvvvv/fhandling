@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Table from './Table';
 import { AES } from 'crypto-js';
 import * as Yup from 'yup';
+import Swal from 'sweetalert2';
 
 const validationSchema = Yup.object().shape({
   name: Yup.string().required('Name is required'),
@@ -38,13 +39,11 @@ const Form = () => {
       // Validate the form data
       await validationSchema.validate(formData, { abortEarly: false });
 
-      setShowData(true);
-
       // Encrypt the password before storing it
       const encryptedPassword = AES.encrypt(formData.password, 'secret-key').toString();
       const newData = { ...formData, password: encryptedPassword };
 
-      console.log('Form submitted:', newData);
+      // Dispatch action to add data to Redux store
       dispatch({ type: 'ADD_DATA', payload: newData });
 
       // Reset the form data and hide the submitted data
@@ -55,6 +54,13 @@ const Form = () => {
       });
       setShowData(false);
       setErrors({});
+
+      // Show success SweetAlert
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Form submitted successfully.',
+      });
     } catch (error) {
       // Handle validation errors
       const validationErrors = {};
